@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <title>Atividades da Turma</title>
+  <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+  <div class="container">
+    <header>
+      <h1>Atividades - <span id="turmaNome"></span></h1>
+      <a href="/turmas"><button class="secondary">Voltar</button></a>
+      <a href="/auth/logout"><button class="secondary">Sair</button></a>
+    </header>
+
+    <section class="card">
+      <h2>Cadastrar Nova Atividade</h2>
+      <form id="formAtividade">
+        <input type="hidden" id="turmaId">
+        <input type="text" id="atividadeDescricao" placeholder="Descrição da Atividade" required>
+        <button type="submit" class="primary">Cadastrar</button>
+      </form>
+    </section>
+
+    <section class="card">
+      <h2>Atividades</h2>
+      <table id="atividadesTable">
+        <thead>
+          <tr>
+            <th>ID</th>
+            <th>Descrição</th>
+          </tr>
+        </thead>
+        <tbody id="atividadesBody"></tbody>
+      </table>
+    </section>
+  </div>
+
+  <script>
+    const urlParams = new URLSearchParams(window.location.search);
+    const turmaId = urlParams.get('id');
+
+    document.getElementById('turmaId').value = turmaId;
+
+    fetch(`/atividades/turma/${turmaId}`)
+      .then(res => res.json())
+      .then(data => {
+        document.getElementById('turmaNome').textContent = data.turma.nome;
+
+        const tbody = document.getElementById('atividadesBody');
+        tbody.innerHTML = '';
+
+        data.atividades.forEach(a => {
+          const tr = document.createElement('tr');
+          tr.innerHTML = `
+            <td>${a.id}</td>
+            <td>${a.descricao}</td>
+          `;
+          tbody.appendChild(tr);
+        });
+      });
+
+    document.getElementById('formAtividade').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const descricao = document.getElementById('atividadeDescricao').value;
+
+      await fetch('/atividades/nova', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+        body: `descricao=${encodeURIComponent(descricao)}&turma_id=${turmaId}`
+      });
+      location.reload();
+    });
+  </script>
+</body>
+</html>
