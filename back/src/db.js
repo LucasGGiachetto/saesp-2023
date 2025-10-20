@@ -2,6 +2,6 @@ const mysql = require('mysql');
 const con = mysql.createConnection({
     host: 'localhost',
     user: 'root',
-    database: 'clinica'
+    database: 'turmas_db'
 });
 module.exports = con;
