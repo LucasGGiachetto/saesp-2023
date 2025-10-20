@@ -2,7 +2,7 @@ const con = require('../db');
 
 function create(req, res) {
     const { nome, email, senha } = req.body;
-    const sql = `INSERT INTO professores (nome, cpf, nascimento) VALUES ('${nome}', '${email}', '${senha}')`;
+    const sql = `INSERT INTO professores (nome, email, senha) VALUES ('${nome}', '${email}', '${senha}')`;
     con.query(sql, (error, result) => {
         if (error) {
             res.status(500).json('Erro ao cadastrar professor');
@@ -27,9 +27,12 @@ function login(req, res) {
     const sql = 'SELECT * FROM professores WHERE email = ? AND senha = ?';
     con.query(sql, [req.body.email, req.body.senha], (error, result) => {
         if (error) {
-            res.status(500).json('Email ou senha incorretos');
+            res.status(500).json({ Erro: error }).end();
         } else {
-            res.status(200).json(result);
+            if (result.length > 0)
+                res.status(200).json(result).end();
+            else
+                res.status(400).json('Email ou senha incorretos').end();
         }
     });
 }
