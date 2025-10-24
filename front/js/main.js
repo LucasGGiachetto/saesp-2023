@@ -1,38 +1,36 @@
-document.addEventListener('DOMContentLoaded', () => {
-  fetch('/turmas')
-    .then(res => res.json())
-    .then(data => {
-      document.getElementById('professorNome').textContent = data.professorNome;
+const usuario = obterUsuario();
+if (!usuario) {
+  window.location.href = './';
+}
 
-      const tbody = document.getElementById('turmasBody');
-      tbody.innerHTML = '';
+const professorNomeSpan = document.getElementById('professorNome');
+if (professorNomeSpan) {
+  professorNomeSpan.textContent = usuario.nome;
+}
 
-      data.turmas.forEach(t => {
-        const tr = document.createElement('tr');
+carregarTurmas();
+
+async function carregarTurmas() {
+  
+  const tbody = document.getElementById('turmasBody');
+
+  fetch('http://localhost:3000/turmas/' + usuario.id)
+    .then(response => response.json())
+    .then(response => {
+      response.forEach(turma => {
+        const tr = document.createElement('tr');  
         tr.innerHTML = `
-          <td>${t.id}</td>
-          <td>${t.nome}</td>
-          <td class="actions">
-            <a href="/atividades/turma/${t.id}"><button class="primary">Visualizar</button></a>
-            <button class="danger" onclick="excluirTurma(${t.id})">Excluir</button>
+          <td>${turma.id}</td>
+          <td>${turma.nome}</td>
+          <td>
+            <button class="secondary" onclick="excluirTurma(${turma.id})">Excluir</button>
           </td>
         `;
         tbody.appendChild(tr);
       });
-    });
-
-  document.getElementById('formTurma').addEventListener('submit', async (e) => {
-    e.preventDefault();
-    const nome = document.getElementById('turmaNome').value;
-
-    await fetch('/turmas/nova', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-      body: `nome=${encodeURIComponent(nome)}`
-    });
-    location.reload();
-  });
-});
+    })
+    .catch(err => console.error(err));
+}
 
 async function excluirTurma(id) {
   if (!confirm('Tem certeza que deseja excluir esta turma?')) return;
