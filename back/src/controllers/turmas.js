@@ -30,12 +30,13 @@ const create = (req, res) => {
 
   db.query(query, [nome, professor_id], (err, result) => {
     if (err) throw err;
-    res.redirect('result');
+    res.json(result);
   });
 }
 
 const del = (req, res) => {
   const turmaId = req.params.id;
+  const professorId = req.params.professorId; // ou do body
 
   const checkQuery = 'SELECT COUNT(*) AS total FROM atividades WHERE turma_id = ?';
   db.query(checkQuery, [turmaId], (err, results) => {
@@ -46,7 +47,7 @@ const del = (req, res) => {
     }
 
     const deleteQuery = 'DELETE FROM turmas WHERE id = ? AND professor_id = ?';
-    db.query(deleteQuery, [turmaId, req.session.userId], (err, result) => {
+    db.query(deleteQuery, [turmaId, professorId], (err, result) => {
       if (err) throw err;
       res.json({ success: true });
     });
